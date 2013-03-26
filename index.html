@@ -1,0 +1,164 @@
+<html>
+<head>
+	<title>Tic Tac Toe</title>
+</head>
+<style>
+	body { background-color:orange;}
+	h1 {text-align:center;}
+	div#tablero{width:310px;height:310px; padding:0px; border: 7px solid #999; background-color:white; margin: 20px auto; cursor:pointer;}
+	div#tablero div{width:100px;height:100px;float:left; margin:0px; font-size: 90px; text-align:center;}
+	div#celda1,div#celda2,div#celda3,div#celda4,div#celda5,div#celda6 {border-bottom: 5px solid black;}
+	div#celda1,div#celda2,div#celda4,div#celda5,div#celda7,div#celda8 {border-right: 5px solid black;}
+	div#tablero > div:hover {background-color:#ddd;}
+	div#consola {width:310px;height:30px; padding:7px; border: 5px solid #999; background-color:white; margin: 10px auto; text-align:center; color:darkgreen;}
+</style>
+<script>
+	/**********************************/
+	/* Juan Gabriel Rodríguez Carrión */
+	/*    jlabstudio.com       2013   */
+	/**********************************/
+
+	var PLAYER = { FIRST:1, SECOND:2 };
+	var STATE = { PLAYING: 0, ENDED:1 };
+
+	function Board(){
+		this.panel=[];
+	}
+	Board.prototype.reset=function(){
+		this.panel=[0,0,0,0,0,0,0,0,0];
+	};
+	Board.prototype.markable=function(position){
+		return (this.panel[position]==0);
+	};
+	Board.prototype.mark=function(turn,position){
+		this.panel[position]=turn;
+	};
+	Board.prototype.draw=function(){
+		var n=this.panel.length;
+		for (var i=0;i<n;i++)
+		{
+			var cell = document.getElementById("celda"+(i+1));
+			if (this.panel[i]==0)
+			{
+				cell.innerHTML='';
+			}
+			else
+			{
+				cell.innerHTML='<span style="color:'+((this.panel[i]==PLAYER.FIRST)?'blue':'red')+';">'+((this.panel[i]==PLAYER.FIRST)?'X':'O')+'</span>';
+			}
+		}
+	};
+	Board.prototype.checkWinner=function(player){
+		//HORIZONTAL
+		var bool=(this.panel[0] == player && this.panel[1] == player && this.panel[2]==player);
+		var bool=bool || (this.panel[3] == player && this.panel[4] == player && this.panel[5]==player);
+		var bool=bool || (this.panel[6] == player && this.panel[7] == player && this.panel[8]==player);
+		//VERTical
+		var bool=bool || (this.panel[0] == player && this.panel[3] == player && this.panel[6]==player);
+		var bool=bool || (this.panel[1] == player && this.panel[4] == player && this.panel[7]==player);
+		var bool=bool || (this.panel[2] == player && this.panel[5] == player && this.panel[8]==player);
+		//DIAGONAl
+		var bool=bool || (this.panel[0] == player && this.panel[4] == player && this.panel[8]==player);
+		var bool=bool || (this.panel[2] == player && this.panel[4] == player && this.panel[6]==player);
+		return bool;
+	};
+	Board.prototype.emptyCells=function(){
+		var n=this.panel.length;
+		for (var i=0;i<n;i++)
+		{
+			if (this.panel[i]==0)
+			{
+				return true;
+			}
+		}
+		return false;
+	};
+
+	function Game(){
+		this.board=new Board();
+		this.turn=0;
+		this.state=STATE.ENDED;
+	}
+	Game.prototype.reset=function(){
+		this.board.reset();
+		this.turn=PLAYER.FIRST;
+		this.state=STATE.PLAYING;
+		this.showMessage("First Player Turn","blue");
+		this.board.draw();
+	};
+	Game.prototype.logic=function(position){
+		if (this.state==STATE.PLAYING)
+		{
+			if (this.board.markable(position))
+			{
+				this.board.mark(this.turn,position);
+				if (this.turn==PLAYER.FIRST)
+				{
+					this.turn=PLAYER.SECOND;
+					this.showMessage("Second Player Turn","red");
+				}
+				else
+				{
+					this.turn=PLAYER.FIRST;
+					this.showMessage("First Player Turn","blue");
+				}
+				this.board.draw();
+
+				if (this.board.checkWinner(PLAYER.FIRST))
+				{
+					this.state=STATE.ENDED;
+					this.showMessage("FIRST PLAYER WON!<br/>Click a cell to new game","blue");
+				}
+				else if (this.board.checkWinner(PLAYER.SECOND))
+				{
+					this.state=STATE.ENDED;
+					this.showMessage("SECOND PLAYER WON!<br/>Click a cell to new game","red");
+				}
+				else if (!this.board.emptyCells())
+				{
+					this.state=STATE.ENDED;
+					this.showMessage("TIE!<br/>Click a cell to new game","orange");
+				}
+			}
+		}
+		else
+		{
+			this.reset();
+		}
+	};
+	Game.prototype.showMessage=function(message,color){
+		var console=document.getElementById("consola");
+		consola.innerHTML='<span style="color:'+color+';">'+message+'</span>';
+	};
+
+
+
+	window.onload=function(){
+		var game=new Game();
+		game.reset();
+
+		var cells = document.getElementsByClassName("celda");
+		for (var i = 0; i < cells.length; i++) {
+		    cells[i].onclick=function(e){
+		    	game.logic(this.id.replace("celda","")-1);
+		    };
+		}
+
+	};
+</script>
+<body>
+	<h1>Tic Tac Toe 2 players</h1>
+	<div id="tablero">
+		<div id="celda1" class="celda"></div>
+		<div id="celda2" class="celda"></div>
+		<div id="celda3" class="celda"></div>
+		<div id="celda4" class="celda"></div>
+		<div id="celda5" class="celda"></div>
+		<div id="celda6" class="celda"></div>
+		<div id="celda7" class="celda"></div>
+		<div id="celda8" class="celda"></div>
+		<div id="celda9" class="celda"></div>
+	</div>
+	<div id="consola"></div>
+</body>
+</html>
